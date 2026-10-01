@@ -1,0 +1,82 @@
+@startuml
+hide empty members
+skinparam classAttributeIconSize 0
+skinparam nodesep 30
+skinparam ranksep 50
+skinparam shadowing false
+
+' ---------- Cliente ----------
+class Assinatura {
+  -cliente: String
+  -valor: double
+  -comprovante: ComprovanteFiscal
+  -pagamento: Pagamento
+  -termo: TermoPrivacidade
+  +Assinatura(cliente, valor, fabrica: FabricaArtefatos)
+  +ativar(): void
+}
+
+' ---------- Abstract Factory ----------
+interface FabricaArtefatos {
+  +criarComprovante(): ComprovanteFiscal
+  +criarPagamento(): Pagamento
+  +criarTermo(): TermoPrivacidade
+}
+
+class FabricaBrasil
+class FabricaMexico
+
+Assinatura --> FabricaArtefatos
+FabricaArtefatos <|.. FabricaBrasil
+FabricaArtefatos <|.. FabricaMexico
+
+' ---------- Produtos concretos, por país ----------
+package "Brasil" {
+  class NFSe
+  class Pix
+  class TermoLGPD
+}
+
+package "México" {
+  class CFDI
+  class SPEI
+  class TermoLFPDPPP
+}
+
+FabricaBrasil ..> NFSe : <<create>>
+FabricaBrasil ..> Pix : <<create>>
+FabricaBrasil ..> TermoLGPD : <<create>>
+
+FabricaMexico ..> CFDI : <<create>>
+FabricaMexico ..> SPEI : <<create>>
+FabricaMexico ..> TermoLFPDPPP : <<create>>
+
+' ---------- Produtos abstratos ----------
+interface ComprovanteFiscal {
+  +descrever(valor: double): String
+}
+
+interface Pagamento {
+  +descrever(valor: double): String
+}
+
+interface TermoPrivacidade {
+  +descrever(): String
+}
+
+NFSe .down.|> ComprovanteFiscal
+CFDI .down.|> ComprovanteFiscal
+Pix .down.|> Pagamento
+SPEI .down.|> Pagamento
+TermoLGPD .down.|> TermoPrivacidade
+TermoLFPDPPP .down.|> TermoPrivacidade
+
+' ---------- Dicas de layout ----------
+FabricaBrasil -[hidden]right- FabricaMexico
+NFSe -[hidden]right- Pix
+Pix -[hidden]right- TermoLGPD
+CFDI -[hidden]right- SPEI
+SPEI -[hidden]right- TermoLFPDPPP
+ComprovanteFiscal -[hidden]right- Pagamento
+Pagamento -[hidden]right- TermoPrivacidade
+@enduml
